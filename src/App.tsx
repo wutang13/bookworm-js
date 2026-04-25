@@ -1,122 +1,83 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, type ChangeEvent, type SubmitEvent } from 'react';
+import './App.css';
+
+type CSVFormat = 'StoryGraph' | 'Goodreads' | 'Unknown';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [file, setFile] = useState<File | null>(null);
+  const [format, setFormat] = useState<CSVFormat>('Unknown');
+
+  const detectFormat = (headerLine: string) => {
+    const headers = headerLine.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    
+    const isStoryGraph = ['Title', 'Authors', 'Read Status'].every(h => headers.includes(h));
+    const isGoodreads = ['Title', 'Author', 'Bookshelves'].every(h => headers.includes(h));
+
+    if (isStoryGraph) return 'StoryGraph';
+    if (isGoodreads) return 'Goodreads';
+    return 'Unknown';
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        const firstLine = text.split('\n')[0];
+        setFormat(detectFormat(firstLine));
+      };
+      reader.readAsText(selectedFile);
+    }
+  };
+
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    if (file && format !== 'Unknown') {
+      console.log(`Submitting ${format} file:`, file.name);
+    } else if (file) {
+      alert('The exported library must be from either StoryGraph or Goodreads.');
+    } else {
+      alert('Please select a CSV file first.');
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <main className="container">
+      <h1>CSV Uploader</h1>
+      <form onSubmit={handleSubmit} className="upload-form">
+        <div className="input-group">
+          <label htmlFor="csv-upload">Select CSV File:</label>
+          <input
+            id="csv-upload"
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+          />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={!file || format === 'Unknown'}
         >
-          Count is {count}
+          Submit CSV
         </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      </form>
+      {file && (
+        <div className="file-info">
+          <p>Selected: <strong>{file.name}</strong></p>
+          <p>Detected Format: <span className={`format-badge ${format.toLowerCase()}`}>{format}</span></p>
+          {format === 'Unknown' && (
+            <p className="error-text">
+              Error: The exported library must be from either StoryGraph or Goodreads.
+            </p>
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      )}
+    </main>
+  );
 }
 
-export default App
+export default App;
