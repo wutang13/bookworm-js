@@ -46,7 +46,7 @@ function App() {
 
   return (
     <main className="container">
-      <h1>CSV Uploader</h1>
+      <h1>Bookworm</h1>
       <form onSubmit={handleSubmit} className="upload-form">
         <div className="input-group">
           <label htmlFor="csv-upload">Select CSV File:</label>
