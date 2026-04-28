@@ -57,8 +57,9 @@ function App() {
           if (format === 'Goodreads') {
             rows.forEach(row => {
               if (row['Exclusive Shelf'] === 'to-read') {
+                const rawTitle = row['Title'] || '';
                 filteredBooks.push({
-                  title: row['Title'],
+                  title: rawTitle.replace(/\s*\(.*\)$/, ''),
                   author: row['Author']
                 });
               }
