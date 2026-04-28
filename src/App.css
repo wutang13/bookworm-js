@@ -95,3 +95,33 @@
   margin-top: 8px;
   font-size: 14px;
 }
+
+.results {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 800px;
+  text-align: left;
+}
+
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: var(--bg);
+}
+
+.book-table th, .book-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.book-table th {
+  background-color: var(--code-bg);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.book-table tr:hover {
+  background-color: var(--accent-bg);
+}
