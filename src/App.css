@@ -125,3 +125,39 @@
 .book-table tr:hover {
   background-color: var(--accent-bg);
 }
+
+.collapsed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  background: var(--code-bg);
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.expand-button {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.expand-button:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  transform: translateY(2px);
+}
