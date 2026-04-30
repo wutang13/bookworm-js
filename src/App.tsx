@@ -28,7 +28,14 @@ function App() {
   // Library search state
   const [libraryQuery, setLibraryQuery] = useState('');
   const [libraryResults, setLibraryResults] = useState<LibraryBranch[]>([]);
-  const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>([]);
+  const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
+    const saved = localStorage.getItem('selectedLibraries');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('selectedLibraries', JSON.stringify(selectedLibraries));
+  }, [selectedLibraries]);
 
   useEffect(() => {
     const fetchLibraries = async () => {
