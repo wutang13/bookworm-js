@@ -15,6 +15,8 @@ interface LibraryBranch {
   address?: string;
   city?: string;
   regionCode?: string;
+  websiteId?: string;
+  searchKey?: string;
 }
 
 function App() {
@@ -40,7 +42,10 @@ function App() {
         const data = await response.json();
         // The API returns an array of results. We take the top 3.
         // Adjusting based on common autocomplete API structures (assuming [{id, name, ...}, ...])
-        const results = (data.branches as LibraryBranch[]).slice(0, 3);
+        const results = (data.branches as any[]).slice(0, 3).map((branch) => ({
+          ...branch,
+          websiteId: branch.systems?.[0]?.websiteId
+        }));
         setLibraryResults(results);
       } catch (error) {
         console.error('Error fetching libraries:', error);
@@ -114,9 +119,19 @@ function App() {
     }
   };
 
-  const addLibrary = (library: LibraryBranch) => {
+  const addLibrary = async (library: LibraryBranch) => {
     if (!selectedLibraries.find(l => l.id === library.id)) {
-      setSelectedLibraries([...selectedLibraries, library]);
+      let searchKey = '';
+      if (library.websiteId) {
+        try {
+          const response = await fetch(`https://thunder.api.overdrive.com/v2/libraries/?websiteIds=${library.websiteId}&x-client-id=dewey`);
+          const data = await response.json();
+          searchKey = data.items?.[0]?.id || '';
+        } catch (error) {
+          console.error('Error fetching searchKey:', error);
+        }
+      }
+      setSelectedLibraries([...selectedLibraries, { ...library, searchKey }]);
     }
     setLibraryQuery('');
     setLibraryResults([]);
