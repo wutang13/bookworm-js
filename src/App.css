@@ -270,9 +270,25 @@
   line-height: 1;
 }
 
-.expand-button:hover {
+.search-libraries-button {
+  margin-top: 24px;
   background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  transform: translateY(2px);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: var(--heading);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.search-libraries-button:hover {
+  opacity: 0.9;
+}
+
+.search-libraries-button:disabled {
+  background: var(--border);
+  cursor: not-allowed;
 }
