@@ -1,4 +1,4 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, useEffect, useMemo, type ChangeEvent } from 'react';
 import Papa from 'papaparse';
 import * as fuzzball from 'fuzzball';
 import './App.css';
@@ -24,11 +24,24 @@ interface LibraryBranch {
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>(() => {
+    return localStorage.getItem('search_fileName') || '';
+  });
   const [format, setFormat] = useState<CSVFormat>('Unknown');
-  const [books, setBooks] = useState<Book[]>([]);
-  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+  const [books, setBooks] = useState<Book[]>(() => {
+    const saved = localStorage.getItem('search_books');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [isFormCollapsed, setIsFormCollapsed] = useState(() => {
+    return !!localStorage.getItem('search_books');
+  });
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
+
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Book | null; direction: 'asc' | 'desc' | null }>({
+    key: null,
+    direction: null,
+  });
 
   // Library search state
   const [libraryQuery, setLibraryQuery] = useState('');
@@ -41,6 +54,13 @@ function App() {
   useEffect(() => {
     localStorage.setItem('selectedLibraries', JSON.stringify(selectedLibraries));
   }, [selectedLibraries]);
+
+  useEffect(() => {
+    localStorage.setItem('search_books', JSON.stringify(books));
+    if (fileName) {
+      localStorage.setItem('search_fileName', fileName);
+    }
+  }, [books, fileName]);
 
   useEffect(() => {
     const fetchLibraries = async () => {
@@ -71,6 +91,45 @@ function App() {
     return () => clearTimeout(timeoutId);
   }, [libraryQuery]);
 
+  const requestSort = (key: keyof Book) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === 'asc') {
+        direction = 'desc';
+      } else if (sortConfig.direction === 'desc') {
+        direction = null;
+      }
+    }
+    setSortConfig({ key: direction ? key : null, direction });
+  };
+
+  const sortedBooks = useMemo(() => {
+    if (!sortConfig.key || !sortConfig.direction) {
+      return books;
+    }
+
+    return [...books].sort((a, b) => {
+      let aValue = a[sortConfig.key!];
+      let bValue = b[sortConfig.key!];
+
+      if (aValue === undefined || aValue === null) return 1;
+      if (bValue === undefined || bValue === null) return -1;
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [books, sortConfig]);
+
   const detectFormat = (headers: string[]) => {
     const isStoryGraph = ['Title', 'Authors', 'Read Status'].every(h => headers.includes(h));
     const isGoodreads = ['Title', 'Author', 'Exclusive Shelf'].every(h => headers.includes(h));
@@ -80,10 +139,18 @@ function App() {
     return 'Unknown';
   };
 
+  const getSortIcon = (key: keyof Book) => {
+    if (sortConfig.key !== key) return '↕';
+    if (sortConfig.direction === 'asc') return '↑';
+    if (sortConfig.direction === 'desc') return '↓';
+    return '↕';
+  };
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
+      setFileName(selectedFile.name);
 
       Papa.parse(selectedFile, {
         header: true,
@@ -287,7 +354,8 @@ function App() {
             </button>
             {isSearching && (
               <div className="search-progress">
-                Searching {searchProgress.current} of {searchProgress.total} requests...
+                <progress value={searchProgress.current} max={searchProgress.total} />
+                <span>{Math.round((searchProgress.current / searchProgress.total) * 100)}%</span>
               </div>
             )}
           </div>
@@ -319,7 +387,7 @@ function App() {
         </>
       ) : (
         <div className="collapsed-header">
-          <p>Showing results for: <strong>{file?.name}</strong></p>
+          <p>Showing results for: <strong>{fileName}</strong></p>
           <button 
             onClick={() => setIsFormCollapsed(false)}
             className="expand-button"
@@ -336,14 +404,22 @@ function App() {
           <table className="book-table">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Ebook Wait</th>
-                <th>Audiobook Wait</th>
+                <th onClick={() => requestSort('title')} style={{ cursor: 'pointer' }}>
+                  Title {getSortIcon('title')}
+                </th>
+                <th onClick={() => requestSort('author')} style={{ cursor: 'pointer' }}>
+                  Author {getSortIcon('author')}
+                </th>
+                <th onClick={() => requestSort('ebook_wait')} style={{ cursor: 'pointer' }}>
+                  Ebook Wait {getSortIcon('ebook_wait')}
+                </th>
+                <th onClick={() => requestSort('audiobook_wait')} style={{ cursor: 'pointer' }}>
+                  Audiobook Wait {getSortIcon('audiobook_wait')}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {books.map((book, index) => (
+              {sortedBooks.map((book, index) => (
                 <tr key={index}>
                   <td>{book.title}</td>
                   <td>{book.author}</td>
