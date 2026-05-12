@@ -1,17 +1,16 @@
-import { useState, useEffect, useMemo, type ChangeEvent } from 'react';
-import Papa from 'papaparse';
+import { useState, useEffect } from 'react';
 import * as fuzzball from 'fuzzball';
 import './App.css';
-import type { CSVFormat, Book, LibraryBranch } from './types';
+import type { Book, LibraryBranch } from './types';
 import { LibrarySearch } from './components/LibrarySearch';
 import { SelectedLibraries } from './components/SelectedLibraries';
+import { ToReadUpload } from './components/ToReadUpload';
+import { ToReadTable } from './components/ToReadTable';
 
 function App() {
-  const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>(() => {
     return localStorage.getItem('search_fileName') || '';
   });
-  const [format, setFormat] = useState<CSVFormat>('Unknown');
   const [books, setBooks] = useState<Book[]>(() => {
     const saved = localStorage.getItem('search_books');
     return saved ? JSON.parse(saved) : [];
@@ -21,11 +20,6 @@ function App() {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
-
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Book | null; direction: 'asc' | 'desc' | null }>({
-    key: null,
-    direction: null,
-  });
 
   const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
     const saved = localStorage.getItem('selectedLibraries');
@@ -42,116 +36,6 @@ function App() {
       localStorage.setItem('search_fileName', fileName);
     }
   }, [books, fileName]);
-
-  const requestSort = (key: keyof Book) => {
-    let direction: 'asc' | 'desc' | null = 'asc';
-    if (sortConfig.key === key) {
-      if (sortConfig.direction === 'asc') {
-        direction = 'desc';
-      } else if (sortConfig.direction === 'desc') {
-        direction = null;
-      }
-    }
-    setSortConfig({ key: direction ? key : null, direction });
-  };
-
-  const sortedBooks = useMemo(() => {
-    if (!sortConfig.key || !sortConfig.direction) {
-      return books;
-    }
-
-    return [...books].sort((a, b) => {
-      let aValue = a[sortConfig.key!];
-      let bValue = b[sortConfig.key!];
-
-      if (aValue === undefined || aValue === null) return 1;
-      if (bValue === undefined || bValue === null) return -1;
-
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [books, sortConfig]);
-
-  const detectFormat = (headers: string[]) => {
-    const isStoryGraph = ['Title', 'Authors', 'Read Status'].every(h => headers.includes(h));
-    const isGoodreads = ['Title', 'Author', 'Exclusive Shelf'].every(h => headers.includes(h));
-
-    if (isStoryGraph) return 'StoryGraph';
-    if (isGoodreads) return 'Goodreads';
-    return 'Unknown';
-  };
-
-  const getSortIcon = (key: keyof Book) => {
-    if (sortConfig.key !== key) return '↕';
-    if (sortConfig.direction === 'asc') return '↑';
-    if (sortConfig.direction === 'desc') return '↓';
-    return '↕';
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setFileName(selectedFile.name);
-
-      Papa.parse(selectedFile, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          const headers = results.meta.fields || [];
-          const detectedFormat = detectFormat(headers);
-          setFormat(detectedFormat);
-
-          if (detectedFormat !== 'Unknown') {
-            const rows = results.data as Record<string, string>[];
-            const filteredBooks: Book[] = [];
-
-            if (detectedFormat === 'Goodreads') {
-              rows.forEach(row => {
-                if (row['Exclusive Shelf'] === 'to-read') {
-                  const rawTitle = row['Title'] || '';
-                  filteredBooks.push({
-                    title: rawTitle.replace(/\s*\(.*\)$/, ''),
-                    author: row['Author']
-                  });
-                }
-              });
-            } else if (detectedFormat === 'StoryGraph') {
-              rows.forEach(row => {
-                if (row['Read Status'] === 'to-read') {
-                  filteredBooks.push({
-                    title: row['Title'],
-                    author: row['Authors']
-                  });
-                }
-              });
-            }
-            setBooks(filteredBooks);
-            setIsFormCollapsed(true);
-          } else {
-            setBooks([]);
-            setIsFormCollapsed(false);
-          }
-        },
-        error: (error) => {
-          console.error('Error parsing CSV:', error);
-          alert('Failed to parse CSV file.');
-          setFormat('Unknown');
-          setBooks([]);
-        }
-      });
-    }
-  };
 
   const addLibrary = async (library: LibraryBranch) => {
     if (!selectedLibraries.find(l => l.id === library.id)) {
@@ -171,6 +55,12 @@ function App() {
 
   const removeLibrary = (id: string) => {
     setSelectedLibraries(selectedLibraries.filter(l => l.id !== id));
+  };
+
+  const handleUploadSuccess = (newBooks: Book[], name: string) => {
+    setBooks(newBooks);
+    setFileName(name);
+    setIsFormCollapsed(true);
   };
 
   const handleSearch = async () => {
@@ -195,11 +85,9 @@ function App() {
       for (let i = 0; i < updatedBooks.length; i++) {
         const book = updatedBooks[i];
 
-        // Progress update
         progressCount++;
         setSearchProgress(prev => ({ ...prev, current: progressCount }));
 
-        // Early exit if both formats are already available
         if (book.ebook_wait === 0 && book.audiobook_wait === 0) {
           continue;
         }
@@ -242,7 +130,6 @@ function App() {
       }
     }
 
-    // Sort by availability descending (lowest wait time first)
     updatedBooks.sort((a, b) => {
       const minA = Math.min(a.ebook_wait ?? 9999, a.audiobook_wait ?? 9999);
       const minB = Math.min(b.ebook_wait ?? 9999, b.audiobook_wait ?? 9999);
@@ -286,79 +173,14 @@ function App() {
         )}
       </section>
 
-      {!isFormCollapsed ? (
-        <>
-          <div className="upload-form">
-            <div className="input-group">
-              <label htmlFor="csv-upload">Select CSV File:</label>
-              <input
-                id="csv-upload"
-                type="file"
-                accept=".csv"
-                onChange={handleFileChange}
-              />
-            </div>
-          </div>
-          {file && format === 'Unknown' && (
-            <div className="file-info">
-              <p>Selected: <strong>{file.name}</strong></p>
-              <p>Detected Format: <span className={`format-badge ${format.toLowerCase()}`}>{format}</span></p>
-              <p className="error-text">
-                Error: The exported library must be from either StoryGraph or Goodreads.
-              </p>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="collapsed-header">
-          <p>Showing results for: <strong>{fileName}</strong></p>
-          <button 
-            onClick={() => setIsFormCollapsed(false)}
-            className="expand-button"
-            aria-label="Expand upload form"
-          >
-            ↓
-          </button>
-        </div>
-      )}
+      <ToReadUpload 
+        onSuccess={handleUploadSuccess}
+        isCollapsed={isFormCollapsed}
+        onExpand={() => setIsFormCollapsed(false)}
+        fileName={fileName}
+      />
 
-      {books.length > 0 && (
-        <div className="results">
-          <h2>To Read List</h2>
-          <table className="book-table">
-            <thead>
-              <tr>
-                <th onClick={() => requestSort('title')} style={{ cursor: 'pointer' }}>
-                  Title {getSortIcon('title')}
-                </th>
-                <th onClick={() => requestSort('author')} style={{ cursor: 'pointer' }}>
-                  Author {getSortIcon('author')}
-                </th>
-                <th onClick={() => requestSort('ebook_wait')} style={{ cursor: 'pointer' }}>
-                  Ebook Wait {getSortIcon('ebook_wait')}
-                </th>
-                <th onClick={() => requestSort('audiobook_wait')} style={{ cursor: 'pointer' }}>
-                  Audiobook Wait {getSortIcon('audiobook_wait')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedBooks.map((book, index) => (
-                <tr key={index}>
-                  <td>{book.title}</td>
-                  <td>{book.author}</td>
-                  <td>
-                    {book.ebook_wait === undefined ? '-' : (book.ebook_wait === 9999 ? 'N/A' : (book.ebook_wait === 0 ? 'Available' : `${book.ebook_wait} days`))}
-                  </td>
-                  <td>
-                    {book.audiobook_wait === undefined ? '-' : (book.audiobook_wait === 9999 ? 'N/A' : (book.audiobook_wait === 0 ? 'Available' : `${book.audiobook_wait} days`))}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <ToReadTable books={books} />
     </main>
   );
 }
