@@ -2,25 +2,9 @@ import { useState, useEffect, useMemo, type ChangeEvent } from 'react';
 import Papa from 'papaparse';
 import * as fuzzball from 'fuzzball';
 import './App.css';
-
-type CSVFormat = 'StoryGraph' | 'Goodreads' | 'Unknown';
-
-interface Book {
-  title: string;
-  author: string;
-  ebook_wait?: number;
-  audiobook_wait?: number;
-}
-
-interface LibraryBranch {
-  id: string;
-  name: string;
-  address?: string;
-  city?: string;
-  regionCode?: string;
-  websiteId?: string;
-  searchKey?: string;
-}
+import type { CSVFormat, Book, LibraryBranch } from './types';
+import { LibrarySearch } from './components/LibrarySearch';
+import { SelectedLibraries } from './components/SelectedLibraries';
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -43,9 +27,6 @@ function App() {
     direction: null,
   });
 
-  // Library search state
-  const [libraryQuery, setLibraryQuery] = useState('');
-  const [libraryResults, setLibraryResults] = useState<LibraryBranch[]>([]);
   const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
     const saved = localStorage.getItem('selectedLibraries');
     return saved ? JSON.parse(saved) : [];
@@ -61,35 +42,6 @@ function App() {
       localStorage.setItem('search_fileName', fileName);
     }
   }, [books, fileName]);
-
-  useEffect(() => {
-    const fetchLibraries = async () => {
-      if (libraryQuery.length < 3) {
-        setLibraryResults([]);
-        return;
-      }
-
-      try {
-        const response = await fetch(`https://locate.libbyapp.com/autocomplete/${encodeURIComponent(libraryQuery)}`);
-        const data = await response.json();
-        // The API returns an array of results. We take the top 3.
-        // Adjusting based on common autocomplete API structures
-        interface RawBranch extends LibraryBranch {
-          systems?: Array<{ websiteId: string }>;
-        }
-        const results = (data.branches as RawBranch[]).slice(0, 3).map((branch) => ({
-          ...branch,
-          websiteId: branch.systems?.[0]?.websiteId
-        }));
-        setLibraryResults(results);
-      } catch (error) {
-        console.error('Error fetching libraries:', error);
-      }
-    };
-
-    const timeoutId = setTimeout(fetchLibraries, 1000); // Debounce API calls by 1 second
-    return () => clearTimeout(timeoutId);
-  }, [libraryQuery]);
 
   const requestSort = (key: keyof Book) => {
     let direction: 'asc' | 'desc' | null = 'asc';
@@ -215,8 +167,6 @@ function App() {
       }
       setSelectedLibraries([...selectedLibraries, { ...library, searchKey }]);
     }
-    setLibraryQuery('');
-    setLibraryResults([]);
   };
 
   const removeLibrary = (id: string) => {
@@ -309,39 +259,13 @@ function App() {
 
       <section className="library-search-section">
         <h2>Find Your Library</h2>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search for your library (e.g. San Francisco Public Library)"
-            value={libraryQuery}
-            onChange={(e) => setLibraryQuery(e.target.value)}
-            className="search-input"
-          />
-          {libraryResults.length > 0 && (
-            <ul className="autocomplete-results">
-              {libraryResults.map((lib) => (
-                <li key={lib.id} onClick={() => addLibrary(lib)}>
-                  <strong>{lib.name}</strong>
-                  {lib.address && <span className="lib-address">{lib.address + ', ' + lib.city + ', ' + lib.regionCode}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        
+        <LibrarySearch onAddLibrary={addLibrary} />
 
-        {selectedLibraries.length > 0 && (
-          <div className="selected-libraries">
-            <h3>My Libraries</h3>
-            <ul>
-              {selectedLibraries.map((lib) => (
-                <li key={lib.id} className="library-chip">
-                  {lib.name}
-                  <button onClick={() => removeLibrary(lib.id)} className="remove-lib">×</button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <SelectedLibraries 
+          libraries={selectedLibraries} 
+          onRemoveLibrary={removeLibrary} 
+        />
 
         {books.length > 0 && selectedLibraries.length > 0 && (
           <div className="search-controls">
