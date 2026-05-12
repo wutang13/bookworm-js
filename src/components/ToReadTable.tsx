@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import type { Book } from '../types';
 
 interface ToReadTableProps {
@@ -30,7 +30,7 @@ export function ToReadTable({ books }: ToReadTableProps) {
     return '↕';
   };
 
-  const sortedBooks = useMemo(() => {
+  const sortBooks = () => {
     if (!sortConfig.key || !sortConfig.direction) {
       return books;
     }
@@ -55,7 +55,7 @@ export function ToReadTable({ books }: ToReadTableProps) {
       }
       return 0;
     });
-  }, [books, sortConfig]);
+  };
 
   return (
     <> {books.length > 0 ? (
@@ -79,7 +79,7 @@ export function ToReadTable({ books }: ToReadTableProps) {
             </tr>
           </thead>
           <tbody>
-            {sortedBooks.map((book, index) => (
+            {sortBooks().map((book, index) => (
               <tr key={index}>
                 <td>{book.title}</td>
                 <td>{book.author}</td>
