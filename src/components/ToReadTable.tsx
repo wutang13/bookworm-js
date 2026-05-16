@@ -3,9 +3,10 @@ import type { Book } from '../types';
 
 interface ToReadTableProps {
   books: Book[];
+  onClear: () => void;
 }
 
-export function ToReadTable({ books }: ToReadTableProps) {
+export function ToReadTable({ books, onClear }: ToReadTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Book | null; direction: 'asc' | 'desc' | null }>({
     key: null,
     direction: null,
@@ -60,7 +61,10 @@ export function ToReadTable({ books }: ToReadTableProps) {
   return (
     <> {books.length > 0 ? (
       <div className="results">
-        <h2>To Read List</h2>
+        <div className="results-header">
+          <h2>To Read List</h2>
+          <button onClick={onClear} className="clear-button">Clear All</button>
+        </div>
         <table className="book-table">
           <thead>
             <tr>

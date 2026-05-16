@@ -74,13 +74,11 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName }: ToR
   if (isCollapsed) {
     return (
       <div className="collapsed-header">
-        <p>Showing results for: <strong>{fileName}</strong></p>
-        <button 
-          onClick={onExpand}
-          className="expand-button"
-          aria-label="Expand upload form"
-        >
-          ↓
+        <div className="file-info-mini">
+          <span>Source: <strong>{fileName}</strong></span>
+        </div>
+        <button onClick={onExpand} className="expand-button" title="Upload new file">
+          +
         </button>
       </div>
     );

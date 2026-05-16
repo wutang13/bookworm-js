@@ -223,6 +223,31 @@
   text-align: left;
 }
 
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.clear-button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-p);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--sans);
+}
+
+.clear-button:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .book-table {
   width: 100%;
   border-collapse: collapse;

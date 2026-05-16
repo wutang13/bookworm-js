@@ -63,6 +63,14 @@ function App() {
     setIsFormCollapsed(true);
   };
 
+  const handleClearBooks = () => {
+    setBooks([]);
+    setFileName('');
+    setIsFormCollapsed(false);
+    localStorage.removeItem('search_books');
+    localStorage.removeItem('search_fileName');
+  };
+
   const handleSearch = async () => {
     if (selectedLibraries.length === 0 || books.length === 0) return;
     setIsSearching(true);
@@ -110,13 +118,13 @@ function App() {
           const data = await response.json();
 
           for (const item of (data.items || [])) {
-            if (fuzzball.ratio(book.title.toLowerCase(), (item.title || "").toLowerCase()) < 70) {
+            if (fuzzball.ratio(`${book.title} ${book.author}`, `${(item.title || "")} ${(item.firstCreatorName || "")}`) < 80) {
               continue;
             }
 
             const mediaType = item.type?.id;
             const isAvailable = item.isAvailable;
-            const waitDays = isAvailable ? 0 : (item.estimatedWaitDays || 0);
+            const waitDays = isAvailable ? 0 : (item.estimatedWaitDays || 9999);
 
             if (mediaType === 'ebook') {
               updatedBooks[i].ebook_wait = Math.min(updatedBooks[i].ebook_wait!, waitDays);
@@ -180,7 +188,7 @@ function App() {
         fileName={fileName}
       />
 
-      <ToReadTable books={books} />
+      <ToReadTable books={books} onClear={handleClearBooks} />
     </main>
   );
 }
