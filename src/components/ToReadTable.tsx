@@ -24,13 +24,11 @@ export function ToReadTable({ books, onClear }: ToReadTableProps) {
       let aValue: string | number | undefined;
       let bValue: string | number | undefined;
 
-      if (key === 'ebook_wait') {
-        // Special case for "Wait" sort: min of ebook and audiobook
-        aValue = Math.min(a.ebook_wait ?? 9999, a.audiobook_wait ?? 9999);
-        bValue = Math.min(b.ebook_wait ?? 9999, b.audiobook_wait ?? 9999);
-      } else {
-        aValue = a[key as keyof Book];
-        bValue = b[key as keyof Book];
+      const key = sortConfig.key;
+
+      if (key === 'ebook_wait' || key === 'audiobook_wait' || key === 'title' || key === 'author') {
+        aValue = a[key];
+        bValue = b[key];
       }
 
       if (aValue === undefined || aValue === null) return 1;
@@ -79,7 +77,13 @@ export function ToReadTable({ books, onClear }: ToReadTableProps) {
               className={`bw-sort-btn ${sortConfig.key === 'ebook_wait' ? 'active' : ''}`}
               onClick={() => setSortConfig({ key: 'ebook_wait', direction: 'asc' })}
             >
-              Wait
+              Ebook
+            </button>
+            <button 
+              className={`bw-sort-btn ${sortConfig.key === 'audiobook_wait' ? 'active' : ''}`}
+              onClick={() => setSortConfig({ key: 'audiobook_wait', direction: 'asc' })}
+            >
+              Audio
             </button>
             <button 
               className={`bw-sort-btn ${sortConfig.key === 'title' ? 'active' : ''}`}
