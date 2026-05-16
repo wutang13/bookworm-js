@@ -45,21 +45,24 @@ export function LibrarySearch({ onAddLibrary }: LibrarySearchProps) {
   };
 
   return (
-    <div className="search-container">
-      <input
-        type="text"
-        placeholder="Search for your library"
-        value={libraryQuery}
-        onChange={(e) => setLibraryQuery(e.target.value)}
-        className="search-input"
-      />
+    <div style={{ position: 'relative' }}>
+      <div className="bw-search-box">
+        <i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--secondary)' }}></i>
+        <input
+          type="text"
+          placeholder="Search for a library…"
+          value={libraryQuery}
+          onChange={(e) => setLibraryQuery(e.target.value)}
+          className="bw-search-input"
+        />
+      </div>
       {libraryResults.length > 0 && (
-        <ul className="autocomplete-results">
+        <ul className="bw-autocomplete-results">
           {libraryResults.map((lib) => (
-            <li key={lib.id} onClick={() => handleSelect(lib)}>
-              <strong>{lib.name}</strong>
+            <li key={lib.id} onClick={() => handleSelect(lib)} className="bw-autocomplete-item">
+              <strong className="bw-autocomplete-name">{lib.name}</strong>
               {lib.address && (
-                <span className="lib-address">
+                <span className="bw-autocomplete-address">
                   {lib.address + ', ' + lib.city + ', ' + lib.regionCode}
                 </span>
               )}

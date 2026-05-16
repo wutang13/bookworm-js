@@ -149,47 +149,84 @@ function App() {
   };
 
   return (
-    <main className="container">
-      <h1>Bookworm</h1>
+    <div className="bw-root">
 
-      <section className="library-search-section">
-        <h2>Find Your Library</h2>
-        
-        <LibrarySearch onAddLibrary={addLibrary} />
+      <header className="bw-header">
+        <h1 className="bw-logo">book<span>worm</span></h1>
+        <p className="bw-tagline">Your library availability companion</p>
+      </header>
 
-        <SelectedLibraries 
-          libraries={selectedLibraries} 
-          onRemoveLibrary={removeLibrary} 
-        />
-
-        {books.length > 0 && selectedLibraries.length > 0 && (
-          <div className="search-controls">
-            <button 
-              onClick={handleSearch} 
-              disabled={isSearching}
-              className="search-libraries-button"
-            >
-              {isSearching ? 'Searching Libraries...' : 'Search Libraries for Availability'}
-            </button>
-            {isSearching && (
-              <div className="search-progress">
-                <progress value={searchProgress.current} max={searchProgress.total} />
-                <span>{Math.round((searchProgress.current / searchProgress.total) * 100)}%</span>
-              </div>
-            )}
+      <div className="bw-main">
+        <aside className="bw-sidebar">
+          <div>
+            <p className="bw-panel-label">
+              <i className="ti ti-building-library" aria-hidden="true"></i> My Libraries
+            </p>
+            <LibrarySearch onAddLibrary={addLibrary} />
+            <SelectedLibraries 
+              libraries={selectedLibraries} 
+              onRemoveLibrary={removeLibrary} 
+            />
+            <div style={{ marginTop: '16px' }}>
+              <button 
+                className="bw-search-btn"
+                onClick={handleSearch}
+                disabled={isSearching || books.length === 0 || selectedLibraries.length === 0}
+                title={
+                  isSearching 
+                    ? "Search in progress..." 
+                    : books.length === 0 
+                      ? "Please upload a to-read list (StoryGraph or Goodreads CSV)" 
+                      : selectedLibraries.length === 0 
+                        ? "Please search for and add at least one library" 
+                        : "Search your libraries for book availability"
+                }
+              >
+                <i className={`ti ${isSearching ? 'ti-loader ti-spin' : 'ti-books'}`} aria-hidden="true"></i>
+                {isSearching ? 'Searching...' : 'Search Libraries'}
+              </button>
+            </div>
           </div>
-        )}
-      </section>
 
-      <ToReadUpload 
-        onSuccess={handleUploadSuccess}
-        isCollapsed={isFormCollapsed}
-        onExpand={() => setIsFormCollapsed(false)}
-        fileName={fileName}
-      />
+          <hr className="bw-divider" />
 
-      <ToReadTable books={books} onClear={handleClearBooks} />
-    </main>
+          <div>
+            <p className="bw-panel-label">
+              <i className="ti ti-file-upload" aria-hidden="true"></i> To-Read List
+            </p>
+            <ToReadUpload 
+              onSuccess={handleUploadSuccess}
+              isCollapsed={isFormCollapsed}
+              onExpand={() => setIsFormCollapsed(false)}
+              fileName={fileName}
+              bookCount={books.length}
+            />
+          </div>
+        </aside>
+
+        <main className="bw-content">
+          <ToReadTable books={books} onClear={handleClearBooks} />
+        </main>
+      </div>
+
+      {isSearching && (
+        <div className="bw-progress-section">
+          <i className="ti ti-loader ti-spin" style={{ color: 'var(--accent)', fontSize: '16px' }} aria-hidden="true"></i>
+          <span className="bw-progress-text">
+            Searching... {searchProgress.current} of {searchProgress.total}
+          </span>
+          <div className="bw-progress-bar-outer">
+            <div 
+              className="bw-progress-bar-inner" 
+              style={{ width: `${(searchProgress.current / searchProgress.total) * 100}%` }}
+            ></div>
+          </div>
+          <span className="bw-progress-text">
+            {Math.round((searchProgress.current / searchProgress.total) * 100)}%
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
 

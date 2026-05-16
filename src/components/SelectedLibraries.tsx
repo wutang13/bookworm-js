@@ -9,22 +9,19 @@ export function SelectedLibraries({ libraries, onRemoveLibrary }: SelectedLibrar
   if (libraries.length === 0) return null;
 
   return (
-    <div className="selected-libraries">
-      <h3>My Libraries</h3>
-      <ul>
-        {libraries.map((lib) => (
-          <li key={lib.id} className="library-chip">
-            {lib.name}
-            <button 
-              onClick={() => onRemoveLibrary(lib.id)} 
-              className="remove-lib"
-              aria-label={`Remove ${lib.name}`}
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="bw-library-list" style={{ marginTop: '10px' }}>
+      {libraries.map((lib) => (
+        <div key={lib.id} className="bw-library-tag">
+          <span className="bw-library-tag-name">{lib.name}</span>
+          <button 
+            onClick={() => onRemoveLibrary(lib.id)} 
+            className="bw-remove"
+            aria-label={`Remove ${lib.name}`}
+          >
+            ×
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

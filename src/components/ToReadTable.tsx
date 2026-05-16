@@ -8,37 +8,30 @@ interface ToReadTableProps {
 
 export function ToReadTable({ books, onClear }: ToReadTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Book | null; direction: 'asc' | 'desc' | null }>({
-    key: null,
-    direction: null,
+    key: 'ebook_wait',
+    direction: 'asc',
   });
 
-  const requestSort = (key: keyof Book) => {
-    let direction: 'asc' | 'desc' | null = 'asc';
-    if (sortConfig.key === key) {
-      if (sortConfig.direction === 'asc') {
-        direction = 'desc';
-      } else if (sortConfig.direction === 'desc') {
-        direction = null;
-      }
-    }
-    setSortConfig({ key: direction ? key : null, direction });
-  };
-
-  const getSortIcon = (key: keyof Book) => {
-    if (sortConfig.key !== key) return '↕';
-    if (sortConfig.direction === 'asc') return '↑';
-    if (sortConfig.direction === 'desc') return '↓';
-    return '↕';
-  };
-
   const sortBooks = () => {
-    if (!sortConfig.key || !sortConfig.direction) {
+    const key = sortConfig.key;
+    const direction = sortConfig.direction;
+
+    if (!key || !direction) {
       return books;
     }
 
     return [...books].sort((a, b) => {
-      let aValue = a[sortConfig.key!];
-      let bValue = b[sortConfig.key!];
+      let aValue: string | number | undefined;
+      let bValue: string | number | undefined;
+
+      if (key === 'ebook_wait') {
+        // Special case for "Wait" sort: min of ebook and audiobook
+        aValue = Math.min(a.ebook_wait ?? 9999, a.audiobook_wait ?? 9999);
+        bValue = Math.min(b.ebook_wait ?? 9999, b.audiobook_wait ?? 9999);
+      } else {
+        aValue = a[key as keyof Book];
+        bValue = b[key as keyof Book];
+      }
 
       if (aValue === undefined || aValue === null) return 1;
       if (bValue === undefined || bValue === null) return -1;
@@ -49,55 +42,79 @@ export function ToReadTable({ books, onClear }: ToReadTableProps) {
       }
 
       if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
+        return direction === 'asc' ? -1 : 1;
       }
       if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
+        return direction === 'asc' ? 1 : -1;
       }
       return 0;
     });
   };
 
+  const renderBadge = (days?: number) => {
+    if (days === undefined) return <span className="bw-avail-badge na">N/A</span>;
+    if (days === 0) return <span className="bw-avail-badge available">Ready</span>;
+    if (days <= 14) return <span className="bw-avail-badge short">{days} days</span>;
+    if (days === 9999) return <span className="bw-avail-badge na">N/A</span>;
+    return <span className="bw-avail-badge long">{days} days</span>;
+  };
+
+  if (books.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px', color: 'var(--secondary)', fontStyle: 'italic' }}>
+        No books found in the provided list.
+      </div>
+    );
+  }
+
   return (
-    <> {books.length > 0 ? (
-      <div className="results">
-        <div className="results-header">
-          <h2>To Read List</h2>
-          <button onClick={onClear} className="clear-button">Clear All</button>
+    <>
+      <div className="bw-results-header">
+        <h2 className="bw-results-title">Results — {books.length} books</h2>
+        <div className="bw-results-controls">
+          <button onClick={onClear} className="bw-clear-btn">Clear All</button>
+          <div className="bw-sort-row">
+            Sort:
+            <button 
+              className={`bw-sort-btn ${sortConfig.key === 'ebook_wait' ? 'active' : ''}`}
+              onClick={() => setSortConfig({ key: 'ebook_wait', direction: 'asc' })}
+            >
+              Wait
+            </button>
+            <button 
+              className={`bw-sort-btn ${sortConfig.key === 'title' ? 'active' : ''}`}
+              onClick={() => setSortConfig({ key: 'title', direction: 'asc' })}
+            >
+              Title
+            </button>
+            <button 
+              className={`bw-sort-btn ${sortConfig.key === 'author' ? 'active' : ''}`}
+              onClick={() => setSortConfig({ key: 'author', direction: 'asc' })}
+            >
+              Author
+            </button>
+          </div>
         </div>
-        <table className="book-table">
-          <thead>
-            <tr>
-              <th onClick={() => requestSort('title')} style={{ cursor: 'pointer' }}>
-                Title {getSortIcon('title')}
-              </th>
-              <th onClick={() => requestSort('author')} style={{ cursor: 'pointer' }}>
-                Author {getSortIcon('author')}
-              </th>
-              <th onClick={() => requestSort('ebook_wait')} style={{ cursor: 'pointer' }}>
-                Ebook Wait {getSortIcon('ebook_wait')}
-              </th>
-              <th onClick={() => requestSort('audiobook_wait')} style={{ cursor: 'pointer' }}>
-                Audiobook Wait {getSortIcon('audiobook_wait')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortBooks().map((book, index) => (
-              <tr key={index}>
-                <td>{book.title}</td>
-                <td>{book.author}</td>
-                <td>
-                  {book.ebook_wait === undefined ? '-' : (book.ebook_wait === 9999 ? 'N/A' : (book.ebook_wait === 0 ? 'Available' : `${book.ebook_wait} days`))}
-                </td>
-                <td>
-                  {book.audiobook_wait === undefined ? '-' : (book.audiobook_wait === 9999 ? 'N/A' : (book.audiobook_wait === 0 ? 'Available' : `${book.audiobook_wait} days`))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>) : <div className="empty-results"> No books found in provided file.</div>}
+      </div>
+
+      <div className="bw-card-list">
+        {sortBooks().map((book, index) => (
+          <div key={index} className="bw-book-card">
+            <div className="bw-book-info">
+              <p className="bw-book-title">{book.title}</p>
+              <p className="bw-book-author">{book.author}</p>
+            </div>
+            <div className="bw-avail">
+              <span className="bw-avail-label">Ebook</span>
+              {renderBadge(book.ebook_wait)}
+            </div>
+            <div className="bw-avail">
+              <span className="bw-avail-label">Audio</span>
+              {renderBadge(book.audiobook_wait)}
+            </div>
+          </div>
+        ))}
+      </div>
     </>
   );
 }

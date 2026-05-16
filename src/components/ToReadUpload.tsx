@@ -7,9 +7,10 @@ interface ToReadUploadProps {
   isCollapsed: boolean;
   onExpand: () => void;
   fileName: string;
+  bookCount: number;
 }
 
-export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName }: ToReadUploadProps) {
+export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookCount }: ToReadUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<CSVFormat>('Unknown');
 
@@ -73,12 +74,18 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName }: ToR
 
   if (isCollapsed) {
     return (
-      <div className="collapsed-header">
-        <div className="file-info-mini">
-          <span>Source: <strong>{fileName}</strong></span>
-        </div>
-        <button onClick={onExpand} className="expand-button" title="Upload new file">
-          +
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+        <i className="ti ti-check" style={{ color: 'var(--success)', fontSize: '16px' }} aria-hidden="true"></i>
+        <span style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--success)', fontFamily: "'Lora', serif" }}>
+          {fileName} — {bookCount} books
+        </span>
+        <button 
+          onClick={onExpand} 
+          className="bw-remove" 
+          title="Upload new file"
+          style={{ marginLeft: 'auto', fontSize: '14px' }}
+        >
+          Change
         </button>
       </div>
     );
@@ -86,22 +93,22 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName }: ToR
 
   return (
     <>
-      <div className="upload-form">
-        <div className="input-group">
-          <label htmlFor="csv-upload">Select CSV File:</label>
-          <input
-            id="csv-upload"
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-          />
+      <div className="bw-upload-zone">
+        <input
+          id="csv-upload"
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+        />
+        <div className="bw-upload-icon">
+          <i className="ti ti-file-text" aria-hidden="true"></i>
         </div>
+        <p className="bw-upload-text">Drop your exported reading list here, or click to browse</p>
+        <p className="bw-upload-formats">StoryGraph · Goodreads</p>
       </div>
       {file && format === 'Unknown' && (
-        <div className="file-info">
-          <p>Selected: <strong>{file.name}</strong></p>
-          <p>Detected Format: <span className={`format-badge ${format.toLowerCase()}`}>{format}</span></p>
-          <p className="error-text">
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+          <p style={{ color: 'var(--error)', fontSize: '12px', fontStyle: 'italic' }}>
             Error: The exported library must be from either StoryGraph or Goodreads.
           </p>
         </div>
