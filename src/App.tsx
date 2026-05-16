@@ -18,6 +18,7 @@ function App() {
   const [isFormCollapsed, setIsFormCollapsed] = useState(() => {
     return !!localStorage.getItem('search_books');
   });
+  const [isLibrariesCollapsed, setIsLibrariesCollapsed] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
 
@@ -159,14 +160,27 @@ function App() {
       <div className="bw-main">
         <aside className="bw-sidebar">
           <div>
-            <p className="bw-panel-label">
-              <i className="ti ti-building-library" aria-hidden="true"></i> My Libraries
+            <p 
+              className="bw-panel-label" 
+              onClick={() => setIsLibrariesCollapsed(!isLibrariesCollapsed)}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <i className="ti ti-building-library" aria-hidden="true"></i> 
+              My Libraries {isLibrariesCollapsed && `(${selectedLibraries.length})`}
+              <i 
+                className={`ti ${isLibrariesCollapsed ? 'ti-chevron-right' : 'ti-chevron-down'}`} 
+                style={{ marginLeft: 'auto', fontSize: '12px' }}
+              ></i>
             </p>
-            <LibrarySearch onAddLibrary={addLibrary} />
-            <SelectedLibraries 
-              libraries={selectedLibraries} 
-              onRemoveLibrary={removeLibrary} 
-            />
+            {!isLibrariesCollapsed && (
+              <>
+                <LibrarySearch onAddLibrary={addLibrary} />
+                <SelectedLibraries 
+                  libraries={selectedLibraries} 
+                  onRemoveLibrary={removeLibrary} 
+                />
+              </>
+            )}
             <div style={{ marginTop: '16px' }}>
               <button 
                 className="bw-search-btn"

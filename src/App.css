@@ -22,9 +22,10 @@ body {
 }
 
 .bw-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .bw-header {
@@ -34,8 +35,6 @@ body {
   align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
-  position: sticky;
-  top: 0;
   background: var(--bg);
   z-index: 10;
 }
@@ -70,7 +69,7 @@ body {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 0;
-  flex: 1;
+  overflow: hidden;
 }
 
 .bw-sidebar {
@@ -80,9 +79,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  position: sticky;
-  top: 0;
-  max-height: 100vh;
   overflow-y: auto;
 }
 
@@ -285,6 +281,7 @@ body {
 
 .bw-content {
   padding: 20px 24px;
+  overflow-y: auto;
 }
 
 .bw-results-header {
