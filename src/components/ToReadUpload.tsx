@@ -93,7 +93,7 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookC
 
   return (
     <>
-      <div className="bw-upload-zone">
+      <label htmlFor="csv-upload" className="bw-upload-zone">
         <input
           id="csv-upload"
           type="file"
@@ -105,7 +105,7 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookC
         </div>
         <p className="bw-upload-text">Drop your exported reading list here, or click to browse</p>
         <p className="bw-upload-formats">StoryGraph · Goodreads</p>
-      </div>
+      </label>
       {file && format === 'Unknown' && (
         <div style={{ marginTop: '10px', textAlign: 'center' }}>
           <p style={{ color: 'var(--error)', fontSize: '12px', fontStyle: 'italic' }}>
