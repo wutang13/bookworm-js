@@ -60,7 +60,7 @@ export function ToReadTable({ books, onClear }: ToReadTableProps) {
   if (books.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '40px', color: 'var(--secondary)', fontStyle: 'italic' }}>
-        No books found in the provided list.
+        Please upload your to-read list in the sidebar to see the books here.
       </div>
     );
   }
