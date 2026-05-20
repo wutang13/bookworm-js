@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import { ToReadUpload } from '../ToReadUpload';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -19,7 +19,6 @@ describe('ToReadUpload', () => {
     const csvContent = 'Title,Authors,Read Status\n"Project Hail Mary","Andy Weir","to-read"\n"Dark Matter","Blake Crouch","read"';
     const file = new File([csvContent], 'storygraph.csv', { type: 'text/csv' });
     
-    const input = screen.getByLabelText(/Drop your exported reading list here, or click to browse/i) as HTMLInputElement;
     // Note: The input is actually hidden but the label/zone is clickable. 
     // In the component it's: <input id="csv-upload" type="file" ... />
     // But it's styled with opacity 0.
