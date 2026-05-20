@@ -21,6 +21,7 @@ function App() {
   const [isLibrariesCollapsed, setIsLibrariesCollapsed] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
     const saved = localStorage.getItem('selectedLibraries');
@@ -150,15 +151,35 @@ function App() {
   };
 
   return (
-    <div className="bw-root">
+    <div className={`bw-root ${isSidebarOpen ? 'sidebar-open' : ''}`}>
 
       <header className="bw-header">
+        <button 
+          className="bw-menu-toggle" 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label="Toggle sidebar"
+        >
+          <i className={`ti ${isSidebarOpen ? 'ti-x' : 'ti-menu-2'}`}></i>
+        </button>
         <h1 className="bw-logo">book<span>worm</span></h1>
         <p className="bw-tagline">Your library availability companion</p>
       </header>
 
       <div className="bw-main">
-        <aside className="bw-sidebar">
+        <div 
+          className={`bw-sidebar-overlay ${isSidebarOpen ? 'active' : ''}`}
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+        <aside className={`bw-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          <div className="bw-sidebar-header">
+            <button 
+              className="bw-sidebar-close" 
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <i className="ti ti-x"></i>
+            </button>
+          </div>
           <div>
             <p 
               className="bw-panel-label" 
@@ -181,35 +202,17 @@ function App() {
                 />
               </>
             )}
-            <div style={{ marginTop: '16px' }}>
-              <button 
-                className="bw-search-btn"
-                onClick={handleSearch}
-                disabled={isSearching || books.length === 0 || selectedLibraries.length === 0}
-                title={
-                  isSearching 
-                    ? "Search in progress..." 
-                    : books.length === 0 
-                      ? "Please upload a to-read list (StoryGraph or Goodreads CSV)" 
-                      : selectedLibraries.length === 0 
-                        ? "Please search for and add at least one library" 
-                        : "Search your libraries for book availability"
-                }
-              >
-                <i className={`ti ${isSearching ? 'ti-loader ti-spin' : 'ti-books'}`} aria-hidden="true"></i>
-                {isSearching ? 'Searching...' : 'Search Libraries'}
-              </button>
-            </div>
           </div>
-
-          <hr className="bw-divider" />
 
           <div>
             <p className="bw-panel-label">
               <i className="ti ti-file-upload" aria-hidden="true"></i> To-Read List
             </p>
             <ToReadUpload 
-              onSuccess={handleUploadSuccess}
+              onSuccess={(books, name) => {
+                handleUploadSuccess(books, name);
+                if (window.innerWidth < 768) setIsSidebarOpen(false);
+              }}
               isCollapsed={isFormCollapsed}
               onExpand={() => setIsFormCollapsed(false)}
               fileName={fileName}
@@ -222,6 +225,27 @@ function App() {
           <ToReadTable books={books} onClear={handleClearBooks} />
         </main>
       </div>
+
+      <button 
+        className="bw-search-btn"
+        onClick={() => {
+          handleSearch();
+          if (window.innerWidth < 768) setIsSidebarOpen(false);
+        }}
+        disabled={isSearching || books.length === 0 || selectedLibraries.length === 0}
+        title={
+          isSearching 
+            ? "Search in progress..." 
+            : books.length === 0 
+              ? "Please upload a to-read list (StoryGraph or Goodreads CSV)" 
+              : selectedLibraries.length === 0 
+                ? "Please search for and add at least one library" 
+                : "Search your libraries for book availability"
+        }
+      >
+        <i className={`ti ${isSearching ? 'ti-loader ti-spin' : 'ti-books'}`} aria-hidden="true"></i>
+        {isSearching ? 'Searching...' : 'Search Libraries'}
+      </button>
 
       {isSearching && (
         <div className="bw-progress-section">
