@@ -9,7 +9,7 @@ export function SelectedLibraries({ libraries, onRemoveLibrary }: SelectedLibrar
   if (libraries.length === 0) return null;
 
   return (
-    <div className="bw-library-list" style={{ marginTop: '10px' }}>
+    <div className="bw-library-list">
       {libraries.map((lib) => (
         <div key={lib.id} className="bw-library-tag">
           <span className="bw-library-tag-name">{lib.name}</span>

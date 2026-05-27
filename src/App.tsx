@@ -198,15 +198,13 @@ function App() {
           </div>
           <div>
             <p 
-              className="bw-panel-label" 
+              className="bw-panel-label clickable" 
               onClick={() => setIsLibrariesCollapsed(!isLibrariesCollapsed)}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <i className="ti ti-building-library" aria-hidden="true"></i> 
               My Libraries {isLibrariesCollapsed && `(${selectedLibraries.length})`}
               <i 
-                className={`ti ${isLibrariesCollapsed ? 'ti-chevron-right' : 'ti-chevron-down'}`} 
-                style={{ marginLeft: 'auto', fontSize: '12px' }}
+                className={`ti ${isLibrariesCollapsed ? 'ti-chevron-right' : 'ti-chevron-down'} bw-chevron-icon`} 
               ></i>
             </p>
             {!isLibrariesCollapsed && (
@@ -269,7 +267,7 @@ function App() {
 
       {isSearching && (
         <div className="bw-progress-section">
-          <i className="ti ti-loader ti-spin" style={{ color: 'var(--accent)', fontSize: '16px' }} aria-hidden="true"></i>
+          <i className="ti ti-loader ti-spin bw-progress-spinner" aria-hidden="true"></i>
           <span className="bw-progress-text">
             Searching...
           </span>

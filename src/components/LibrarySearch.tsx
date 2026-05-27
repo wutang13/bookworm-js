@@ -45,9 +45,9 @@ export function LibrarySearch({ onAddLibrary }: LibrarySearchProps) {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="bw-search-container">
       <div className="bw-search-box">
-        <i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--secondary)' }}></i>
+        <i className="ti ti-search bw-search-icon" aria-hidden="true"></i>
         <input
           type="text"
           placeholder="Search for a library…"

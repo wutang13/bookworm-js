@@ -74,16 +74,15 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookC
 
   if (isCollapsed) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-        <i className="ti ti-check" style={{ color: 'var(--success)', fontSize: '16px' }} aria-hidden="true"></i>
-        <span style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--success)', fontFamily: "'Lora', serif" }}>
+      <div className="bw-upload-collapsed-container">
+        <i className="ti ti-check bw-upload-success-icon" aria-hidden="true"></i>
+        <span className="bw-upload-success-text">
           {fileName} — {bookCount} books
         </span>
         <button 
           onClick={onExpand} 
-          className="bw-remove" 
+          className="bw-remove bw-upload-change-btn" 
           title="Upload new file"
-          style={{ marginLeft: 'auto', fontSize: '14px' }}
         >
           Change
         </button>
@@ -107,8 +106,8 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookC
         <p className="bw-upload-formats">StoryGraph · Goodreads</p>
       </label>
       {file && format === 'Unknown' && (
-        <div style={{ marginTop: '10px', textAlign: 'center' }}>
-          <p style={{ color: 'var(--error)', fontSize: '12px', fontStyle: 'italic' }}>
+        <div className="bw-upload-error-container">
+          <p className="bw-upload-error-text">
             Error: The exported library must be from either StoryGraph or Goodreads.
           </p>
         </div>

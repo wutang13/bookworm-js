@@ -60,7 +60,7 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
 
   if (books.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', color: 'var(--secondary)', fontStyle: 'italic' }}>
+      <div className="bw-empty-table">
         Please upload your to-read list in the sidebar to see the books here.
       </div>
     );
@@ -69,10 +69,10 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
   return (
     <>
       <div className="bw-results-header">
-        <div style={{ textAlign: 'left' }}>
+        <div className="bw-results-title-container">
           <h2 className="bw-results-title">Results — {books.length} books</h2>
           {lastSearchTime && (
-            <div className="bw-last-search" style={{ fontSize: '11px', color: 'var(--secondary)', fontStyle: 'italic', marginTop: '2px', fontFamily: "'Courier Prime', monospace", textAlign: 'left' }}>
+            <div className="bw-last-search">
               Last searched: {lastSearchTime}
             </div>
           )}

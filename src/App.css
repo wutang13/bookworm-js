@@ -299,6 +299,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-top: 10px;
 }
 
 .bw-library-tag {
@@ -622,4 +623,87 @@ body {
 
 .ti {
   vertical-align: middle;
+}
+
+/* Clickable panel labels */
+.bw-panel-label.clickable {
+  cursor: pointer;
+}
+
+/* Chevron icons inside headers */
+.bw-chevron-icon {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+/* Loader spinner colors */
+.bw-progress-spinner {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+/* Container for relative search inputs */
+.bw-search-container {
+  position: relative;
+}
+
+.bw-search-icon {
+  color: var(--secondary);
+}
+
+/* Results panel styles */
+.bw-empty-table {
+  text-align: center;
+  padding: 40px;
+  color: var(--secondary);
+  font-style: italic;
+}
+
+.bw-results-title-container {
+  text-align: left;
+}
+
+.bw-last-search {
+  font-size: 11px;
+  color: var(--secondary);
+  font-style: italic;
+  margin-top: 2px;
+  font-family: 'Courier Prime', monospace;
+  text-align: left;
+}
+
+/* Upload zone collapsed / success state */
+.bw-upload-collapsed-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bw-upload-success-icon {
+  color: var(--success);
+  font-size: 16px;
+}
+
+.bw-upload-success-text {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--success);
+  font-family: 'Lora', serif;
+}
+
+.bw-upload-change-btn {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.bw-upload-error-container {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.bw-upload-error-text {
+  color: var(--error);
+  font-size: 12px;
+  font-style: italic;
 }
