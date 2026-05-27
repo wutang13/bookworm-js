@@ -23,6 +23,9 @@ function App() {
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const cancelSearchRef = useRef(false);
+  const [lastSearchTime, setLastSearchTime] = useState<string | null>(() => {
+    return localStorage.getItem('search_lastSearchTime');
+  });
 
   const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
     const saved = localStorage.getItem('selectedLibraries');
@@ -67,11 +70,13 @@ function App() {
   };
 
   const handleClearBooks = () => {
-    setBooks([]);
-    setFileName('');
-    setIsFormCollapsed(false);
-    localStorage.removeItem('search_books');
-    localStorage.removeItem('search_fileName');
+    setBooks(books.map(book => ({
+      ...book,
+      ebook_wait: undefined,
+      audiobook_wait: undefined
+    })));
+    setLastSearchTime(null);
+    localStorage.removeItem('search_lastSearchTime');
   };
 
   const handleSearch = async () => {
@@ -155,6 +160,10 @@ function App() {
 
     setBooks(updatedBooks);
     setIsSearching(false);
+
+    const timeStr = new Date().toLocaleString();
+    setLastSearchTime(timeStr);
+    localStorage.setItem('search_lastSearchTime', timeStr);
   };
 
   return (
@@ -229,7 +238,7 @@ function App() {
         </aside>
 
         <main className="bw-content">
-          <ToReadTable books={books} onClear={handleClearBooks} />
+          <ToReadTable books={books} onClear={handleClearBooks} lastSearchTime={lastSearchTime} />
         </main>
       </div>
 

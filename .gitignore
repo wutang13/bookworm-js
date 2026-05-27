@@ -26,3 +26,4 @@ dist-ssr
 # Development Tools
 .playwright/
 .claude/
+.antigravitycli/

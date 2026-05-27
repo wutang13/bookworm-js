@@ -4,9 +4,10 @@ import type { Book } from '../types';
 interface ToReadTableProps {
   books: Book[];
   onClear: () => void;
+  lastSearchTime?: string | null;
 }
 
-export function ToReadTable({ books, onClear }: ToReadTableProps) {
+export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: keyof Book | null; direction: 'asc' | 'desc' | null }>({
     key: 'ebook_wait',
     direction: 'asc',
@@ -68,7 +69,14 @@ export function ToReadTable({ books, onClear }: ToReadTableProps) {
   return (
     <>
       <div className="bw-results-header">
-        <h2 className="bw-results-title">Results — {books.length} books</h2>
+        <div style={{ textAlign: 'left' }}>
+          <h2 className="bw-results-title">Results — {books.length} books</h2>
+          {lastSearchTime && (
+            <div className="bw-last-search" style={{ fontSize: '11px', color: 'var(--secondary)', fontStyle: 'italic', marginTop: '2px', fontFamily: "'Courier Prime', monospace", textAlign: 'left' }}>
+              Last searched: {lastSearchTime}
+            </div>
+          )}
+        </div>
         <div className="bw-results-controls">
           <button onClick={onClear} className="bw-clear-btn">Clear All</button>
           <div className="bw-sort-row">
