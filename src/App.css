@@ -330,6 +330,7 @@ body {
 }
 
 .bw-upload-zone {
+  display: block;
   border: 2px dashed var(--accent-light);
   border-radius: 3px;
   padding: 20px 12px;

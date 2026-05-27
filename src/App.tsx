@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as fuzzball from 'fuzzball';
 import './App.css';
 import type { Book, LibraryBranch } from './types';
@@ -22,6 +22,7 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState({ current: 0, total: 0 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const cancelSearchRef = useRef(false);
 
   const [selectedLibraries, setSelectedLibraries] = useState<LibraryBranch[]>(() => {
     const saved = localStorage.getItem('selectedLibraries');
@@ -76,6 +77,7 @@ function App() {
   const handleSearch = async () => {
     if (selectedLibraries.length === 0 || books.length === 0) return;
     setIsSearching(true);
+    cancelSearchRef.current = false;
     setSearchProgress({ current: 0, total: books.length * selectedLibraries.length });
 
     const updatedBooks = books.map(book => ({
@@ -86,6 +88,8 @@ function App() {
 
     let progressCount = 0;
     for (const library of selectedLibraries) {
+      if (cancelSearchRef.current) break;
+
       if (!library.searchKey) {
         progressCount += books.length;
         setSearchProgress(prev => ({ ...prev, current: progressCount }));
@@ -93,6 +97,7 @@ function App() {
       }
 
       for (let i = 0; i < updatedBooks.length; i++) {
+        if (cancelSearchRef.current) break;
         const book = updatedBooks[i];
 
         progressCount++;
@@ -118,6 +123,8 @@ function App() {
           const response = await fetch(`${url}?${params.toString()}`);
           if (!response.ok) continue;
           const data = await response.json();
+
+          if (cancelSearchRef.current) break;
 
           for (const item of (data.items || [])) {
             if (fuzzball.ratio(`${book.title} ${book.author}`, `${(item.title || "")} ${(item.firstCreatorName || "")}`) < 80) {
@@ -229,13 +236,17 @@ function App() {
       <button 
         className="bw-search-btn"
         onClick={() => {
-          handleSearch();
+          if (isSearching) {
+            cancelSearchRef.current = true;
+          } else {
+            handleSearch();
+          }
           if (window.innerWidth < 768) setIsSidebarOpen(false);
         }}
-        disabled={isSearching || books.length === 0 || selectedLibraries.length === 0}
+        disabled={books.length === 0 || selectedLibraries.length === 0}
         title={
           isSearching 
-            ? "Search in progress..." 
+            ? "Cancel search" 
             : books.length === 0 
               ? "Please upload a to-read list (StoryGraph or Goodreads CSV)" 
               : selectedLibraries.length === 0 
@@ -243,24 +254,24 @@ function App() {
                 : "Search your libraries for book availability"
         }
       >
-        <i className={`ti ${isSearching ? 'ti-loader ti-spin' : 'ti-books'}`} aria-hidden="true"></i>
-        {isSearching ? 'Searching...' : 'Search Libraries'}
+        <i className={`ti ${isSearching ? 'ti-x' : 'ti-books'}`} aria-hidden="true"></i>
+        {isSearching ? 'Cancel Search' : 'Search Libraries'}
       </button>
 
       {isSearching && (
         <div className="bw-progress-section">
           <i className="ti ti-loader ti-spin" style={{ color: 'var(--accent)', fontSize: '16px' }} aria-hidden="true"></i>
           <span className="bw-progress-text">
-            Searching... {searchProgress.current} of {searchProgress.total}
+            Searching...
           </span>
           <div className="bw-progress-bar-outer">
             <div 
               className="bw-progress-bar-inner" 
-              style={{ width: `${(searchProgress.current / searchProgress.total) * 100}%` }}
+              style={{ width: `${searchProgress.total > 0 ? (searchProgress.current / searchProgress.total) * 100 : 0}%` }}
             ></div>
           </div>
           <span className="bw-progress-text">
-            {Math.round((searchProgress.current / searchProgress.total) * 100)}%
+            {searchProgress.total > 0 ? Math.round((searchProgress.current / searchProgress.total) * 100) : 0}%
           </span>
         </div>
       )}
