@@ -5,6 +5,10 @@ export interface Book {
   author: string;
   ebook_wait?: number;
   audiobook_wait?: number;
+  ebook_id?: string;
+  audiobook_id?: string;
+  ebook_library?: string;
+  audiobook_library?: string;
 }
 
 export interface LibraryBranch {

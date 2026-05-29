@@ -73,7 +73,11 @@ function App() {
     setBooks(books.map(book => ({
       ...book,
       ebook_wait: undefined,
-      audiobook_wait: undefined
+      audiobook_wait: undefined,
+      ebook_id: undefined,
+      audiobook_id: undefined,
+      ebook_library: undefined,
+      audiobook_library: undefined
     })));
     setLastSearchTime(null);
     localStorage.removeItem('search_lastSearchTime');
@@ -85,10 +89,14 @@ function App() {
     cancelSearchRef.current = false;
     setSearchProgress({ current: 0, total: books.length * selectedLibraries.length });
 
-    const updatedBooks = books.map(book => ({
+    const updatedBooks: Book[] = books.map(book => ({
       ...book,
       ebook_wait: book.ebook_wait ?? 9999,
       audiobook_wait: book.audiobook_wait ?? 9999,
+      ebook_id: undefined,
+      audiobook_id: undefined,
+      ebook_library: undefined,
+      audiobook_library: undefined,
     }));
 
     let progressCount = 0;
@@ -141,9 +149,17 @@ function App() {
             const waitDays = isAvailable ? 0 : (item.estimatedWaitDays || 9999);
 
             if (mediaType === 'ebook') {
-              updatedBooks[i].ebook_wait = Math.min(updatedBooks[i].ebook_wait!, waitDays);
+              if (waitDays < updatedBooks[i].ebook_wait!) {
+                updatedBooks[i].ebook_wait = waitDays;
+                updatedBooks[i].ebook_id = item.id;
+                updatedBooks[i].ebook_library = library.searchKey;
+              }
             } else if (mediaType === 'audiobook') {
-              updatedBooks[i].audiobook_wait = Math.min(updatedBooks[i].audiobook_wait!, waitDays);
+              if (waitDays < updatedBooks[i].audiobook_wait!) {
+                updatedBooks[i].audiobook_wait = waitDays;
+                updatedBooks[i].audiobook_id = item.id;
+                updatedBooks[i].audiobook_library = library.searchKey;
+              }
             }
           }
         } catch (error) {

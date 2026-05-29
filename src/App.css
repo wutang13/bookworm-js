@@ -563,13 +563,15 @@ body {
 }
 
 .bw-avail-badge {
+  display: inline-block;
+  box-sizing: border-box;
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 2px;
   text-align: center;
-  min-width: 52px;
+  min-width: 80px;
 }
 
 .bw-avail-badge.available { background: #d4edda; color: #2d6a3f; border: 1px solid #8fc9a0; }
@@ -706,4 +708,31 @@ body {
   color: var(--error);
   font-size: 12px;
   font-style: italic;
+}
+
+.bw-avail-link {
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.bw-avail-badge {
+  transition: all 0.2s ease;
+}
+
+.bw-avail-link:hover .bw-avail-badge {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.bw-avail-link:hover .bw-avail-badge.available {
+  box-shadow: 0 2px 6px rgba(74, 124, 89, 0.2);
+}
+
+.bw-avail-link:hover .bw-avail-badge.short {
+  box-shadow: 0 2px 6px rgba(122, 92, 0, 0.2);
+}
+
+.bw-avail-link:hover .bw-avail-badge.long {
+  box-shadow: 0 2px 6px rgba(131, 40, 40, 0.2);
 }

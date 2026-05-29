@@ -50,12 +50,38 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
     });
   };
 
-  const renderBadge = (days?: number) => {
-    if (days === undefined) return <span className="bw-avail-badge na">N/A</span>;
-    if (days === 0) return <span className="bw-avail-badge available">Ready</span>;
-    if (days <= 14) return <span className="bw-avail-badge short">{days} days</span>;
-    if (days === 9999) return <span className="bw-avail-badge na">N/A</span>;
-    return <span className="bw-avail-badge long">{days} days</span>;
+  const renderBadge = (days?: number, itemId?: string, searchKey?: string) => {
+    if (days === undefined || days === 9999) {
+      return <span className="bw-avail-badge na">N/A</span>;
+    }
+
+    let badgeClass = 'long';
+    let text = `${days} days`;
+
+    if (days === 0) {
+      badgeClass = 'available';
+      text = 'Ready';
+    } else if (days <= 14) {
+      badgeClass = 'short';
+    }
+
+    const badgeSpan = <span className={`bw-avail-badge ${badgeClass}`}>{text}</span>;
+
+    if (itemId && searchKey) {
+      return (
+        <a
+          href={`https://libbyapp.com/search/${searchKey}/search/query-1/page-1/${itemId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bw-avail-link"
+          title="Open in Libby"
+        >
+          {badgeSpan}
+        </a>
+      );
+    }
+
+    return badgeSpan;
   };
 
   if (books.length === 0) {
@@ -118,11 +144,11 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
             </div>
             <div className="bw-avail">
               <span className="bw-avail-label">Ebook</span>
-              {renderBadge(book.ebook_wait)}
+              {renderBadge(book.ebook_wait, book.ebook_id, book.ebook_library)}
             </div>
             <div className="bw-avail">
               <span className="bw-avail-label">Audio</span>
-              {renderBadge(book.audiobook_wait)}
+              {renderBadge(book.audiobook_wait, book.audiobook_id, book.audiobook_library)}
             </div>
           </div>
         ))}
