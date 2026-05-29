@@ -77,7 +77,12 @@ export function ToReadUpload({ onSuccess, isCollapsed, onExpand, fileName, bookC
       <div className="bw-upload-collapsed-container">
         <i className="ti ti-check bw-upload-success-icon" aria-hidden="true"></i>
         <span className="bw-upload-success-text">
-          {fileName} — {bookCount} books
+          <span className="bw-upload-filename" title={fileName}>
+            {fileName}
+          </span>
+          <span className="bw-upload-bookcount">
+            {" — "}{bookCount} books
+          </span>
         </span>
         <button 
           onClick={onExpand} 

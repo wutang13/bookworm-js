@@ -709,6 +709,22 @@ body {
   font-style: italic;
   color: var(--success);
   font-family: 'Lora', serif;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.bw-upload-filename {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.bw-upload-bookcount {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .bw-upload-change-btn {
