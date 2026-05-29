@@ -171,8 +171,14 @@ body {
   }
 
   .bw-progress-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 95;
     padding: 10px 16px;
     gap: 8px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .bw-progress-text {
@@ -438,6 +444,17 @@ body {
 .bw-content {
   padding: 20px 24px;
   overflow-y: auto;
+}
+
+/* Ensure content can be scrolled fully above the fixed search button / progress bar */
+.bw-root:has(.bw-progress-section) .bw-content {
+  padding-bottom: 80px;
+}
+
+@media (max-width: 768px) {
+  .bw-root:has(.bw-progress-section) .bw-content {
+    padding-bottom: 70px;
+  }
 }
 
 .bw-results-header {

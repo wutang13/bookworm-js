@@ -87,7 +87,7 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
   if (books.length === 0) {
     return (
       <div className="bw-empty-table">
-        Please upload your to-read list in the sidebar to see the books here.
+        Please upload your to-read list from The StoryGraph or Goodreads in the sidebar to see the books here.
       </div>
     );
   }
