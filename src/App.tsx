@@ -91,8 +91,8 @@ function App() {
 
     const updatedBooks: Book[] = books.map(book => ({
       ...book,
-      ebook_wait: book.ebook_wait ?? 9999,
-      audiobook_wait: book.audiobook_wait ?? 9999,
+      ebook_wait: 9999,
+      audiobook_wait: 9999,
       ebook_id: undefined,
       audiobook_id: undefined,
       ebook_library: undefined,
