@@ -203,15 +203,6 @@ function App() {
           onClick={() => setIsSidebarOpen(false)}
         ></div>
         <aside className={`bw-sidebar ${isSidebarOpen ? 'open' : ''}`}>
-          <div className="bw-sidebar-header">
-            <button 
-              className="bw-sidebar-close" 
-              onClick={() => setIsSidebarOpen(false)}
-              aria-label="Close sidebar"
-            >
-              <i className="ti ti-x"></i>
-            </button>
-          </div>
           <div>
             <p 
               className="bw-panel-label clickable" 

@@ -582,7 +582,9 @@ body {
 }
 
 .bw-avail-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   font-family: 'Courier Prime', monospace;
   font-size: 12px;
@@ -591,6 +593,11 @@ body {
   border-radius: 2px;
   text-align: center;
   min-width: 80px;
+}
+
+.bw-avail-arrow {
+  font-size: 10px;
+  margin-left: 2px;
 }
 
 .bw-avail-badge.available { background: #d4edda; color: #2d6a3f; border: 1px solid #8fc9a0; }

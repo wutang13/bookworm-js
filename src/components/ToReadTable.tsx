@@ -76,7 +76,9 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
           className="bw-avail-link"
           title="Open in Libby"
         >
-          {badgeSpan}
+          <span className={`bw-avail-badge ${badgeClass}`}>
+            {text} <i className="ti ti-arrow-up-right bw-avail-arrow" aria-hidden="true"></i>
+          </span>
         </a>
       );
     }
