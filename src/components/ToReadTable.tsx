@@ -105,7 +105,7 @@ export function ToReadTable({ books, onClear, lastSearchTime }: ToReadTableProps
             </div>
           )}
         </div>
-        <div className="bw-results-controls">
+        <div className="bw-results-actions">
           <button onClick={onClear} className="bw-clear-btn">Clear All</button>
           <div className="bw-sort-row">
             Sort:

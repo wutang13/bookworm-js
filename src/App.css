@@ -438,9 +438,6 @@ body {
     font-size: 11px;
   }
 
-  .bw-root:has(.bw-progress-section) .bw-search-btn {
-    bottom: 70px;
-  }
 }
 
 .bw-content {
@@ -448,20 +445,9 @@ body {
   overflow-y: auto;
 }
 
-/* Ensure content can be scrolled fully above the fixed search button / progress bar */
-.bw-root:has(.bw-progress-section) .bw-content {
-  padding-bottom: 80px;
-}
-
-@media (max-width: 768px) {
-  .bw-root:has(.bw-progress-section) .bw-content {
-    padding-bottom: 70px;
-  }
-}
-
 .bw-results-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
   flex-wrap: wrap;
@@ -473,6 +459,13 @@ body {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
+}
+
+.bw-results-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .bw-results-controls {
@@ -532,6 +525,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
+  margin-bottom: 80px;
 }
 
 .bw-book-card {
