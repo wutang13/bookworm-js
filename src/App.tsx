@@ -140,7 +140,7 @@ function App() {
           if (cancelSearchRef.current) break;
 
           for (const item of (data.items || [])) {
-            if (fuzzball.ratio(`${book.title} ${book.author}`, `${(item.title || "")} ${(item.firstCreatorName || "")}`) < 80) {
+            if (fuzzball.ratio(`${book.title} ${book.author}`, `${(item.title || "")} ${(item.firstCreatorName || "")}`) < 90) {
               continue;
             }
 
